@@ -1,6 +1,7 @@
-use actix_web::{web, App, HttpServer, HttpRequest, HttpResponse, Responder};
-use actix_web::dev::Server;
 use std::net::TcpListener;
+
+use actix_web::{App, HttpRequest, HttpResponse, HttpServer, post, Responder, web};
+use actix_web::dev::Server;
 
 pub fn run(listener: TcpListener) -> Result<Server, std::io::Error> {
     let server = HttpServer::new(|| {
@@ -10,6 +11,7 @@ pub fn run(listener: TcpListener) -> Result<Server, std::io::Error> {
                 web::scope("/api/v1")
                     .route("/", web::get().to(greet))
                     .route("/{name}", web::get().to(greet))
+                    .route("subscriptions", web::post().to(subscribe_user))
             )
             .route("/health-check", web::get().to(health_check))
     })
@@ -40,4 +42,17 @@ impl DefaultGreeter {
 // health check
 async fn health_check(_req: HttpRequest) -> impl Responder {
     HttpResponse::Ok()
+}
+
+
+// #[post("/api/v1/subscriptions")]
+async fn subscribe_user(form: web::Form<FormData>) -> impl Responder {
+    format!("Welcome {}!", form.name)
+}
+
+
+#[derive(Debug, serde::Deserialize)]
+struct FormData {
+    name: String,
+    email: String,
 }
