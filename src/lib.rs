@@ -11,7 +11,7 @@ pub fn run(listener: TcpListener) -> Result<Server, std::io::Error> {
                 web::scope("/api/v1")
                     .route("/", web::get().to(greet))
                     .route("/{name}", web::get().to(greet))
-                    .route("subscriptions", web::post().to(subscribe_user))
+                    .route("/subscriptions", web::post().to(subscribe_user))
             )
             .route("/health-check", web::get().to(health_check))
     })
