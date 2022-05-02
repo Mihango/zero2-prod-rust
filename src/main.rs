@@ -1,7 +1,5 @@
-mod lib;
-
 use std::net::TcpListener;
-use crate::lib::run;
+use zero2prod::startup::run;
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
