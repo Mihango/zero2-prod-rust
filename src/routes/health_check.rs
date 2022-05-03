@@ -1,11 +1,11 @@
 use actix_web::{web, HttpResponse, Responder, HttpRequest};
 
-pub(crate) async fn greet(req: HttpRequest, default_greeter: web::Data<DefaultGreeter>) -> impl Responder {
+pub async fn greet(req: HttpRequest, default_greeter: web::Data<DefaultGreeter>) -> impl Responder {
     let name = req.match_info().get("name").unwrap_or(default_greeter.value.as_str());
     format!("Hello {name}!")
 }
 
-pub(crate) struct DefaultGreeter {
+pub struct DefaultGreeter {
     value: String,
 }
 
