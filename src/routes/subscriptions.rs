@@ -1,11 +1,12 @@
 use actix_web::{HttpResponse, Responder, web};
 use chrono::Utc;
 use sqlx::PgPool;
+use tracing::Instrument;
 use uuid::Uuid;
 
 // #[post("/api/v1/subscriptions")]
-pub async fn subscribe_user(form: web::Form<FormData>,
-                            pool: web::Data<PgPool>) -> impl Responder {
+pub async fn subscribe(form: web::Form<FormData>,
+                       pool: web::Data<PgPool>) -> impl Responder {
     let request_id = Uuid::new_v4();
     let request_span = tracing::info_span!(
         "Adding a new subscriber.",
@@ -14,9 +15,10 @@ pub async fn subscribe_user(form: web::Form<FormData>,
         subscriber_name = %form.name,
     );
     let _request_span_guard = request_span.enter();
+    let query_span = tracing::info_span!("Saving new subscriber details to database.");
 
-    tracing::info!("Adding '{}' '{}' as a new subscriber", form.email, form.name);
-    tracing::info!("Saving new subscriber details in the database");
+    // tracing::info!("Adding '{}' '{}' as a new subscriber", form.email, form.name);
+    // tracing::info!("Saving new subscriber details in the database");
     match sqlx::query!(
         r#"
         INSERT INTO subscriptions (id, email, name, subscribed_at)
@@ -29,9 +31,10 @@ pub async fn subscribe_user(form: web::Form<FormData>,
     )
         // use get_ref to get an immutable reference to the connection
         .execute(pool.get_ref())
+        .instrument(query_span)
         .await {
         Ok(_) => {
-            tracing::info!("New subscriber details saved in the database");
+            // tracing::info!("New subscriber details saved in the database");
             HttpResponse::Ok().finish()
         }
         Err(e) => {
