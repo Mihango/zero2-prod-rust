@@ -3,15 +3,20 @@ use tracing::subscriber::set_global_default;
 use tracing_bunyan_formatter::{BunyanFormattingLayer, JsonStorageLayer};
 use tracing_log::LogTracer;
 use tracing_subscriber::{EnvFilter, layer::SubscriberExt, Registry};
+use tracing_subscriber::fmt::MakeWriter;
 
-pub fn get_subscriber(name: String, env_filer: String) -> impl Subscriber + Send + Sync {
+pub fn get_subscriber<Sink>(
+    name: String,
+    env_filer: String,
+    sink: Sink,
+) -> impl Subscriber + Sync + Send
+    where
+        Sink: for<'a> MakeWriter<'a> + Send + Sync + 'static {
     // We are falling back to printing all spans at info-level or above if the RUST_LOG env var is not set.
     let env_filter = EnvFilter::try_from_default_env()
         .unwrap_or_else(|_| EnvFilter::new(env_filer));
     let formatting_layer = BunyanFormattingLayer::new(
-        name,
-        || std::io::stdout(),
-    );
+        name, sink, );
     // the 'with' method is provided by SubscriberExt an extension trait for Subscriber exposed
     // by tracing-subscriber
     Registry::default()
