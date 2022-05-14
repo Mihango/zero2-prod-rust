@@ -35,6 +35,7 @@ features = [
     "uuid", # adds support for mapping SQL UUIDs to Uuid type in uuid crate
     "chrono", # adds support for mapping SQL timestamps to chrono::DateTime type in chrono crate
     "migrate", # gives access to same functionality as sqlx-cli to manage migrations
+    "offline", # allows sqlx to validate SQL statements without connecting to a database at compile time
 ]
 
 [dev-dependencies]

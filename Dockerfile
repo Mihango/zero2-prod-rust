@@ -8,6 +8,8 @@ WORKDIR /app
 # copy all files from our working directory to Docker image
 COPY . .
 
+ENV SQLX_OFFLINE true
+
 # build the binary with release profile
 RUN cargo build --release
 
